@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bloc_screen/ui/DashBoardScreen.dart';
+import 'package:bloc_screen/ui/bloc/CounterState.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart';
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: BlocConsumer<CounterCubit, CounterState>(
           listener: (context, state) {
-            // TODO: implement listener
+            if (state.productSuccess) {}
           },
           builder: (context, state) {
             return SingleChildScrollView(
@@ -41,6 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: size.width * 0.02,
                   ),
                   Text("${state.count}"),
+                  Text(
+                      "${context.read<CounterCubit>().productModalList.length}"),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -51,7 +54,43 @@ class _HomeScreenState extends State<HomeScreen> {
                         context.read<CounterCubit>().decrement();
                       })
                     ],
-                  )
+                  ),
+                  SizedBox(
+                    height: size.width * 0.02,
+                  ),
+                  context.read<CounterCubit>().commonButton("Next Page", () {
+                    context.read<CounterCubit>().callGetList();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (cxt) => const DashBoardScreen()));
+                  }),
+                  ListView.builder(
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount:
+                          context.read<CounterCubit>().productModalList.length,
+                      itemBuilder: (cxt, index) {
+                        debugPrint(
+                            "length:-${context.read<CounterCubit>().productModalList.length}");
+                        var item = context
+                            .read<CounterCubit>()
+                            .productModalList[index];
+                        return Container(
+                          margin: EdgeInsets.symmetric(
+                              vertical: size.width * 0.02,
+                              horizontal: size.width * 0.02),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(item.title),
+                              Text(item.price),
+                              Text(item.description),
+                            ],
+                          ),
+                        );
+                      }),
                 ],
               ),
             ));
@@ -86,4 +125,21 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
+
+class ProductModal {
+  String title = "";
+  String description = "";
+  String price = "";
+  String brand = "";
+  String category = "";
+  String image = "";
+
+  ProductModal(
+      {required this.title,
+      required this.price,
+      required this.description,
+      required this.brand,
+      required this.image,
+      required this.category});
 }
